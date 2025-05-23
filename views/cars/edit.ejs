@@ -1,28 +1,315 @@
 <%- include('../partials/header.ejs') %>
 
-<h2 class="spaceInTop" style="margin-bottom: 20px">Edit car</h2>
+<div class="edit-container">
+    <div class="edit-card">
+        <div class="edit-header">
+            <h1>Edit Your Car</h1>
+            <p>Update your car listing details</p>
+        </div>
 
-<form action="/cars/update" method="POST">
+        <% if (typeof error !== 'undefined' && error !== "") { %>
+            <div class="alert alert-error">
+                <span class="alert-icon">⚠️</span>
+                <p><%- error %></p>
+            </div>
+        <% } %>
 
-  <input type="hidden" name="_method" value="PUT">
+        <div class="edit-content">
+            <!-- Current Car Preview -->
+            <div class="car-preview">
+                <h3>Current Listing</h3>
+                <div class="preview-card">
+                    <div class="preview-image">
+                        <% if (car.imageUrl) { %>
+                            <img src="<%= car.imageUrl %>" alt="<%= car.model %>" class="current-image" />
+                        <% } else { %>
+                            <div class="no-image-preview">
+                                <span class="no-image-icon">📷</span>
+                                <span class="no-image-text">No Image</span>
+                            </div>
+                        <% } %>
+                    </div>
+                    <div class="preview-info">
+                        <h4><%= car.model %> (<%= car.year %>)</h4>
+                        <div class="preview-details">
+                            <span class="preview-price">$<%= car.price.toLocaleString() %></span>
+                            <span class="preview-condition condition-<%= car.condition.toLowerCase() %>">
+                                <%= car.condition %>
+                            </span>
+                            <span class="preview-status status-<%= car.isAvailable ? 'available' : 'sold' %>">
+                                <%= car.isAvailable ? 'Available' : 'Not Available' %>
+                            </span>
+                        </div>
+                    </div>
+                </div>
+            </div>
 
-  <input type="hidden" name="id" value="<%= car._id %>" />
+            <!-- Edit Form -->
+            <div class="edit-form-section">
+                <h3>Update Details</h3>
+                <form action="/cars/update" method="POST" class="edit-form">
+                    <input type="hidden" name="_method" value="PUT">
+                    <input type="hidden" name="id" value="<%= car._id %>" />
 
-  <input type="text" name="model" value="<%= car.model%>" required />
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="model">
+                                <span class="label-icon">🚗</span>
+                                Car Model
+                            </label>
+                            <input 
+                                type="text" 
+                                id="model"
+                                name="model" 
+                                value="<%= car.model %>" 
+                                required 
+                                class="form-control"
+                                placeholder="e.g., Toyota Camry, Honda Civic"
+                            />
+                            <small class="form-text">Include make and model</small>
+                        </div>
 
-  <input type="number" name="year" value="<%= car.year%>" required />
+                        <div class="form-group">
+                            <label for="year">
+                                <span class="label-icon">📅</span>
+                                Year
+                            </label>
+                            <input 
+                                type="number" 
+                                id="year"
+                                name="year" 
+                                value="<%= car.year %>" 
+                                required 
+                                min="1900" 
+                                max="2024"
+                                class="form-control"
+                            />
+                            <small class="form-text">Manufacturing year</small>
+                        </div>
+                    </div>
 
-  <input type="text" name="condition" value="<%= car.condition%>" required />
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="condition">
+                                <span class="label-icon">⭐</span>
+                                Condition
+                            </label>
+                            <select name="condition" id="condition" required class="form-control">
+                                <option value="Excellent" <%= car.condition === 'Excellent' ? 'selected' : '' %>>
+                                    Excellent - Like new
+                                </option>
+                                <option value="Good" <%= car.condition === 'Good' ? 'selected' : '' %>>
+                                    Good - Minor wear
+                                </option>
+                                <option value="Fair" <%= car.condition === 'Fair' ? 'selected' : '' %>>
+                                    Fair - Some issues
+                                </option>
+                                <option value="Poor" <%= car.condition === 'Poor' ? 'selected' : '' %>>
+                                    Poor - Needs work
+                                </option>
+                            </select>
+                            <small class="form-text">Current condition of your car</small>
+                        </div>
 
-  <select name="isAvailable" >
-    <option value="true"  <%= car.isAvailable === true ? 'selected' : '' %> >Available</option>
-    <option value="false"  <%= car.isAvailable === false ? 'selected' : '' %>>Not Available</option>
-  </select>
+                        <div class="form-group">
+                            <label for="isAvailable">
+                                <span class="label-icon">✅</span>
+                                Availability Status
+                            </label>
+                            <select name="isAvailable" id="isAvailable" class="form-control">
+                                <option value="true" <%= car.isAvailable === true ? 'selected' : '' %>>
+                                    Available for sale
+                                </option>
+                                <option value="false" <%= car.isAvailable === false ? 'selected' : '' %>>
+                                    Not available
+                                </option>
+                            </select>
+                            <small class="form-text">Set availability status</small>
+                        </div>
+                    </div>
 
-  <input type="number" name="price" value="<%= car.price%>" required />
+                    <div class="form-group">
+                        <label for="price">
+                            <span class="label-icon">💰</span>
+                            Price (USD)
+                        </label>
+                        <div class="price-input-wrapper">
+                            <span class="price-symbol">$</span>
+                            <input 
+                                type="number" 
+                                id="price"
+                                name="price" 
+                                value="<%= car.price %>" 
+                                required 
+                                min="0"
+                                step="100"
+                                class="form-control price-input"
+                            />
+                        </div>
+                        <small class="form-text">Update your asking price</small>
+                    </div>
 
-  <input type="text" name="imageUrl" value="<%= car.imageUrl ? car.imageUrl : '' %>" placeholder="Image URL" />
-  <button type="submit">Update</button>
-</form>
+                    <div class="form-group">
+                        <label for="imageUrl">
+                            <span class="label-icon">📸</span>
+                            Image URL
+                        </label>
+                        <input 
+                            type="url" 
+                            id="imageUrl"
+                            name="imageUrl" 
+                            value="<%= car.imageUrl ? car.imageUrl : '' %>" 
+                            placeholder="https://example.com/car-image.jpg" 
+                            class="form-control"
+                        />
+                        <small class="form-text">Add or update photo URL</small>
+                    </div>
+
+                    <div class="form-actions">
+                        <button type="submit" class="btn btn-success btn-large">
+                            <span class="btn-icon">💾</span>
+                            Update Car
+                        </button>
+                        <a href="/cars/<%= car._id %>" class="btn btn-secondary btn-large">
+                            <span class="btn-icon">👁️</span>
+                            View Listing
+                        </a>
+                        <a href="/users/<%= user._id %>" class="btn btn-outline btn-large">
+                            <span class="btn-icon">❌</span>
+                            Cancel
+                        </a>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- Additional Actions -->
+        <div class="additional-actions">
+            <div class="actions-header">
+                <h3>Additional Actions</h3>
+                <p>Manage your car listing</p>
+            </div>
+            
+            <div class="actions-grid">
+                <div class="action-item">
+                    <div class="action-icon">👁️</div>
+                    <div class="action-content">
+                        <h4>View Public Listing</h4>
+                        <p>See how your car appears to buyers</p>
+                        <a href="/cars/<%= car._id %>" class="action-link">View Listing →</a>
+                    </div>
+                </div>
+
+                <div class="action-item">
+                    <div class="action-icon">📊</div>
+                    <div class="action-content">
+                        <h4>Listing Performance</h4>
+                        <p>Check views and interest in your car</p>
+                        <span class="action-link disabled">Coming Soon →</span>
+                    </div>
+                </div>
+
+                <div class="action-item danger">
+                    <div class="action-icon">🗑️</div>
+                    <div class="action-content">
+                        <h4>Delete Listing</h4>
+                        <p>Permanently remove this car from marketplace</p>
+                        <form action="/cars/delete" method="POST" class="delete-form" onsubmit="return confirmDelete()">
+                            <input type="hidden" name="id" value="<%= car._id %>" />
+                            <button type="submit" class="action-link danger">Delete Listing →</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tips Section -->
+        <div class="tips-section">
+            <h3>💡 Tips for Better Sales</h3>
+            <div class="tips-grid">
+                <div class="tip-item">
+                    <span class="tip-icon">📸</span>
+                    <div class="tip-content">
+                        <h4>High-Quality Photos</h4>
+                        <p>Use clear, well-lit photos from multiple angles</p>
+                    </div>
+                </div>
+                <div class="tip-item">
+                    <span class="tip-icon">💰</span>
+                    <div class="tip-content">
+                        <h4>Competitive Pricing</h4>
+                        <p>Research similar cars to set the right price</p>
+                    </div>
+                </div>
+                <div class="tip-item">
+                    <span class="tip-icon">📝</span>
+                    <div class="tip-content">
+                        <h4>Honest Description</h4>
+                        <p>Be transparent about condition and history</p>
+                    </div>
+                </div>
+                <div class="tip-item">
+                    <span class="tip-icon">⚡</span>
+                    <div class="tip-content">
+                        <h4>Quick Response</h4>
+                        <p>Respond promptly to buyer inquiries</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+function confirmDelete() {
+    return confirm('Are you sure you want to delete this car listing? This action cannot be undone.');
+}
+
+// Form validation and preview updates
+document.addEventListener('DOMContentLoaded', function() {
+    const form = document.querySelector('.edit-form');
+    const imageUrlInput = document.getElementById('imageUrl');
+    const currentImage = document.querySelector('.current-image');
+    const noImagePreview = document.querySelector('.no-image-preview');
+    
+    // Update image preview when URL changes
+    if (imageUrlInput) {
+        imageUrlInput.addEventListener('input', function() {
+            const url = this.value.trim();
+            if (url) {
+                if (currentImage) {
+                    currentImage.src = url;
+                    currentImage.style.display = 'block';
+                } else {
+                    // Create new image element if none exists
+                    const img = document.createElement('img');
+                    img.src = url;
+                    img.alt = 'Car preview';
+                    img.className = 'current-image';
+                    document.querySelector('.preview-image').innerHTML = '';
+                    document.querySelector('.preview-image').appendChild(img);
+                }
+                if (noImagePreview) {
+                    noImagePreview.style.display = 'none';
+                }
+            } else {
+                if (currentImage) {
+                    currentImage.style.display = 'none';
+                }
+                if (noImagePreview) {
+                    noImagePreview.style.display = 'flex';
+                }
+            }
+        });
+    }
+    
+    // Form submission handling
+    form.addEventListener('submit', function() {
+        const submitBtn = this.querySelector('button[type="submit"]');
+        submitBtn.innerHTML = '<span class="btn-icon">⏳</span>Updating...';
+        submitBtn.disabled = true;
+    });
+});
+</script>
 
 <%- include('../partials/footer.ejs') %>

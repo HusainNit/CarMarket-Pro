@@ -1,13 +1,33 @@
 <%- include('./partials/header.ejs') %>
-
-<div class="mainScreenSpace">
-  <% if (!user) { %>
-  <h1 class="spaceInTop">Sign in or sign up to get started.</h1>
-  <% } else { %>
-
-  <h1 class="spaceInTop">Welcome <%- user.name %> to The Cars app!</h1>
-
-  <% } %>
+<div class="card">
+    <div class="card-header">
+        <h1 class="card-title">Welcome to Car Market Pro</h1>
+        <p>Your trusted platform for buying and selling cars</p>
+        
+    </div>
+    
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 2rem; margin-top: 2rem;">
+        <div style="text-align: center; padding: 2rem; background: #f8f9fa; border-radius: 8px;">
+            <h3 style="color: #2c3e50; margin-bottom: 1rem;">Browse Cars</h3>
+            <p style="color: #666; margin-bottom: 1.5rem;">Find your perfect car from our extensive listings</p>
+            <a href="/cars/all" class="btn btn-primary">View All Cars</a>
+        </div>
+        
+        <div style="text-align: center; padding: 2rem; background: #f8f9fa; border-radius: 8px;">
+            <h3 style="color: #2c3e50; margin-bottom: 1rem;">Sell Your Car</h3>
+            <p style="color: #666; margin-bottom: 1.5rem;">List your car and reach thousands of buyers</p>
+            <% if (user) { %>
+                <a href="/cars/new" class="btn btn-success">List Your Car</a>
+            <% } else { %>
+                <a href="/auth/sign-up" class="btn btn-success">Get Started</a>
+            <% } %>
+        </div>
+        
+        <div style="text-align: center; padding: 2rem; background: #f8f9fa; border-radius: 8px;">
+            <h3 style="color: #2c3e50; margin-bottom: 1rem;">Safe Transactions</h3>
+            <p style="color: #666; margin-bottom: 1.5rem;">Secure and transparent buying process</p>
+            <a href="/transactions/all" class="btn btn-secondary">Learn More</a>
+        </div>
+    </div>
 </div>
-
 <%- include('./partials/footer.ejs') %>

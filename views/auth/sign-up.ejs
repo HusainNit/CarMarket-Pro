@@ -1,43 +1,92 @@
 <%- include('../partials/header.ejs') %>
-<div class="spaceInTop">
-  <h2>Sign Up</h2>
-  <form action="/auth/sign-up" method="POST">
-    <input
-      type="text"
-      name="name"
-      placeholder="name"
-      required
-      pattern="^[a-zA-Z0-9]{3,}$"
-    />
-    <input
-      type="email"
-      name="email"
-      placeholder="Email"
-      required
-      pattern="^[a-zA-Z0-9\.\+\-\_]{3,}@[a-zA-Z]\.[a-zA-Z]{2,}$"
-    />
-    <input
-      type="text"
-      name="phone"
-      placeholder="phone"
-      required
-      pattern="^[0-9]{8}$"
-    />
-    <input
-      type="password"
-      name="password"
-      placeholder="Password"
-      required
-      pattern="^[a-zA-Z0-9\-\_\@\#\$\%\&\*]{6,}$"
-    />
-    <input
-      type="password"
-      name="confirmPassword"
-      placeholder="Confirm Password"
-      required
-      pattern="^[a-zA-Z0-9\-\_\@\#\$\%\&\*]{6,}$"
-    />
-    <button type="submit">Register</button>
-  </form>
+
+<div class="auth-container">
+    <div class="auth-card">
+        <div class="auth-header">
+            <h2>Create Account</h2>
+            <p>Join CarMarket Pro and start buying or selling cars</p>
+        </div>
+
+        <% if (typeof error !== 'undefined' && error !== "") { %>
+            <div class="alert alert-error">
+                <p><%- error %></p>
+            </div>
+        <% } %>
+
+        <form action="/auth/sign-up" method="POST" class="auth-form">
+            <div class="form-group">
+                <label for="name">Full Name</label>
+                <input
+                    type="text"
+                    id="name"
+                    name="name"
+                    placeholder="Enter your full name"
+                    required
+                    pattern="^[a-zA-Z0-9]{3,}$"
+                    class="form-control"
+                />
+            </div>
+
+            <div class="form-group">
+                <label for="email">Email Address</label>
+                <input
+                    type="email"
+                    id="email"
+                    name="email"
+                    placeholder="Enter your email"
+                    required
+                    pattern="^[a-zA-Z0-9\.\+\-\_]{3,}@[a-zA-Z]\.[a-zA-Z]{2,}$"
+                    class="form-control"
+                />
+            </div>
+
+            <div class="form-group">
+                <label for="phone">Phone Number</label>
+                <input
+                    type="text"
+                    id="phone"
+                    name="phone"
+                    placeholder="Enter your phone number"
+                    required
+                    pattern="^[0-9]{8}$"
+                    class="form-control"
+                />
+            </div>
+
+            <div class="form-group">
+                <label for="password">Password</label>
+                <input
+                    type="password"
+                    id="password"
+                    name="password"
+                    placeholder="Create a password"
+                    required
+                    pattern="^[a-zA-Z0-9\-\_\@\#\$\%\&\*]{6,}$"
+                    class="form-control"
+                />
+                <small class="form-text">Password must be at least 6 characters long</small>
+            </div>
+
+            <div class="form-group">
+                <label for="confirmPassword">Confirm Password</label>
+                <input
+                    type="password"
+                    id="confirmPassword"
+                    name="confirmPassword"
+                    placeholder="Confirm your password"
+                    required
+                    pattern="^[a-zA-Z0-9\-\_\@\#\$\%\&\*]{6,}$"
+                    class="form-control"
+                />
+            </div>
+
+            <button type="submit" class="btn btn-success btn-full">Create Account</button>
+        </form>
+
+        <div class="auth-footer">
+            <p>Already have an account? <a href="/auth/sign-in">Sign in here</a></p>
+        </div>
+    </div>
 </div>
+
 <%- include('../partials/footer.ejs') %>

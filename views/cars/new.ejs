@@ -1,28 +1,146 @@
 <%- include('../partials/header.ejs') %>
 
-<h2 class="spaceInTop" style="margin-bottom: 20px;">Add New Car</h2>
+<div class="form-container">
+    <div class="form-card">
+        <div class="form-header">
+            <h1>List Your Car</h1>
+            <p>Fill in the details below to list your car on CarMarket Pro</p>
+        </div>
 
-  <form action="/cars/new" method="POST">
+        <% if (typeof error !== 'undefined' && error !== "") { %>
+            <div class="alert alert-error">
+                <p><%- error %></p>
+            </div>
+        <% } %>
 
-  <input type="hidden" name="owner" value="<%= user._id %>" />
+        <form action="/cars/new" method="POST" class="car-form">
+            <input type="hidden" name="owner" value="<%= user._id %>" />
 
-  <input type="text" name="model" placeholder="Model" required />
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="model">
+                        <span class="label-icon">🚗</span>
+                        Car Model
+                    </label>
+                    <input 
+                        type="text" 
+                        id="model"
+                        name="model" 
+                        placeholder="e.g., Toyota Camry, Honda Civic" 
+                        required 
+                        class="form-control"
+                    />
+                    <small class="form-text">Include make and model (e.g., Toyota Camry)</small>
+                </div>
 
-  <input type="number" name="year" placeholder="Year" required />
+                <div class="form-group">
+                    <label for="year">
+                        <span class="label-icon">📅</span>
+                        Year
+                    </label>
+                    <input 
+                        type="number" 
+                        id="year"
+                        name="year" 
+                        placeholder="2020" 
+                        required 
+                        min="1900" 
+                        max="2024"
+                        class="form-control"
+                    />
+                    <small class="form-text">Manufacturing year</small>
+                </div>
+            </div>
 
-  <input type="text" name="condition" placeholder="Condition" required />
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="condition">
+                        <span class="label-icon">⭐</span>
+                        Condition
+                    </label>
+                    <select name="condition" id="condition" required class="form-control">
+                        <option value="">Select condition</option>
+                        <option value="Excellent">Excellent - Like new</option>
+                        <option value="Good">Good - Minor wear</option>
+                        <option value="Fair">Fair - Some issues</option>
+                        <option value="Poor">Poor - Needs work</option>
+                    </select>
+                    <small class="form-text">Be honest about your car's condition</small>
+                </div>
 
-  <select name="isAvailable">
-    <option value="true">Available</option>
-    <option value="false">Not Available</option>
-  </select>
+                <div class="form-group">
+                    <label for="isAvailable">
+                        <span class="label-icon">✅</span>
+                        Availability
+                    </label>
+                    <select name="isAvailable" id="isAvailable" class="form-control">
+                        <option value="true">Available for sale</option>
+                        <option value="false">Not available</option>
+                    </select>
+                    <small class="form-text">Current availability status</small>
+                </div>
+            </div>
 
-  <input type="number" name="price" placeholder="Price" required />
+            <div class="form-group">
+                <label for="price">
+                    <span class="label-icon">💰</span>
+                    Price (USD)
+                </label>
+                <div class="price-input-wrapper">
+                    <span class="price-symbol">$</span>
+                    <input 
+                        type="number" 
+                        id="price"
+                        name="price" 
+                        placeholder="25000" 
+                        required 
+                        min="0"
+                        step="100"
+                        class="form-control price-input"
+                    />
+                </div>
+                <small class="form-text">Set a competitive price for your car</small>
+            </div>
 
-  <input type="text" name="imageUrl" placeholder="Image URL" />
+            <div class="form-group">
+                <label for="imageUrl">
+                    <span class="label-icon">📸</span>
+                    Image URL (Optional)
+                </label>
+                <input 
+                    type="url" 
+                    id="imageUrl"
+                    name="imageUrl" 
+                    placeholder="https://example.com/car-image.jpg" 
+                    class="form-control"
+                />
+                <small class="form-text">Add a photo URL to showcase your car</small>
+            </div>
 
+            <div class="form-actions">
+                <button type="submit" class="btn btn-success btn-large">
+                    <span class="btn-icon">🚀</span>
+                    List My Car
+                </button>
+                <a href="/users/<%= user._id %>" class="btn btn-secondary btn-large">
+                    <span class="btn-icon">❌</span>
+                    Cancel
+                </a>
+            </div>
+        </form>
 
-  <button type="submit">Add Car</button>
-</form>
+        <div class="form-footer">
+            <div class="tips-section">
+                <h3>💡 Tips for a successful listing</h3>
+                <ul class="tips-list">
+                    <li>Use clear, high-quality photos</li>
+                    <li>Be honest about the car's condition</li>
+                    <li>Research similar cars for competitive pricing</li>
+                    <li>Include all important details in the description</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
 
 <%- include('../partials/footer.ejs') %>

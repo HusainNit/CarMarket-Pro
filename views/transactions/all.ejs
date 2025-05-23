@@ -1,34 +1,226 @@
 <%- include('../partials/header.ejs') %>
 
-<h2 class="spaceInTop" style="margin-bottom: 20px;">All Transactions</h2>
+<div class="transactions-container">
+    <div class="transactions-header">
+        <div class="header-content">
+            <h1>Transaction History</h1>
+            <p>Complete record of all car sales and purchases</p>
+        </div>
+        <div class="header-stats">
+            <div class="stat-item">
+                <span class="stat-number"><%= transactions.length %></span>
+                <span class="stat-label">Total Transactions</span>
+            </div>
+            <% if (transactions.length > 0) { %>
+                <div class="stat-item">
+                    <span class="stat-number">$<%= transactions.reduce((sum, t) => sum + t.price, 0).toLocaleString() %></span>
+                    <span class="stat-label">Total Volume</span>
+                </div>
+            <% } %>
+        </div>
+    </div>
 
-<% if (transactions.length === 0) { %>
-<div class="alert">No transactions available!</div>
-<% } else { %>
+    <% if (transactions.length === 0) { %>
+        <div class="empty-transactions">
+            <div class="empty-icon">📊</div>
+            <h2>No Transactions Yet</h2>
+            <p>Start buying or selling cars to see your transaction history here</p>
+            <div class="empty-actions">
+                <a href="/cars/all" class="btn btn-primary btn-large">
+                    <span class="btn-icon">🔍</span>
+                    Browse Cars
+                </a>
+                <a href="/cars/new" class="btn btn-success btn-large">
+                    <span class="btn-icon">➕</span>
+                    Sell a Car
+                </a>
+            </div>
+        </div>
+    <% } else { %>
+        <!-- Desktop Table View -->
+        <div class="transactions-table-container desktop-only">
+            <div class="table-wrapper">
+                <table class="transactions-table">
+                    <thead>
+                        <tr>
+                            <th class="col-car">
+                                <span class="th-icon">🚗</span>
+                                Car Details
+                            </th>
+                            <th class="col-buyer">
+                                <span class="th-icon">👤</span>
+                                Buyer
+                            </th>
+                            <th class="col-seller">
+                                <span class="th-icon">🏪</span>
+                                Seller
+                            </th>
+                            <th class="col-date">
+                                <span class="th-icon">📅</span>
+                                Date
+                            </th>
+                            <th class="col-price">
+                                <span class="th-icon">💰</span>
+                                Price
+                            </th>
+                            <th class="col-location">
+                                <span class="th-icon">📍</span>
+                                Location
+                            </th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <% transactions.forEach((transaction, index) => { %>
+                            <tr class="transaction-row" style="animation-delay: \<\%= index * 0.1 \%\>s">
+                                <td class="car-cell">
+                                    <div class="car-info">
+                                        <div class="car-name">
+                                            <%= transaction.car ? transaction.car.model : 'Car not available' %>
+                                        </div>
+                                        <% if (transaction.car && transaction.car.year) { %>
+                                            <div class="car-year"><%= transaction.car.year %></div>
+                                        <% } %>
+                                    </div>
+                                </td>
+                                <td class="buyer-cell">
+                                    <div class="user-info">
+                                        <div class="user-avatar buyer-avatar">
+                                            <%= transaction.buyer.name.charAt(0).toUpperCase() %>
+                                        </div>
+                                        <div class="user-name"><%= transaction.buyer.name %></div>
+                                    </div>
+                                </td>
+                                <td class="seller-cell">
+                                    <div class="user-info">
+                                        <div class="user-avatar seller-avatar">
+                                            <%= transaction.seller.name.charAt(0).toUpperCase() %>
+                                        </div>
+                                        <div class="user-name"><%= transaction.seller.name %></div>
+                                    </div>
+                                </td>
+                                <td class="date-cell">
+                                    <div class="date-info">
+                                        <div class="date-main">
+                                            <%= new Date(transaction.date).toLocaleDateString('en-US', { 
+                                                month: 'short', 
+                                                day: 'numeric', 
+                                                year: 'numeric' 
+                                            }) %>
+                                        </div>
+                                        <div class="date-time">
+                                            <%= new Date(transaction.date).toLocaleTimeString('en-US', { 
+                                                hour: '2-digit', 
+                                                minute: '2-digit' 
+                                            }) %>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td class="price-cell">
+                                    <div class="price-amount">$<%= transaction.price.toLocaleString() %></div>
+                                </td>
+                                <td class="location-cell">
+                                    <div class="location-info">
+                                        <%= transaction.location || 'Not specified' %>
+                                    </div>
+                                </td>
+                            </tr>
+                        <% }) %>
+                    </tbody>
+                </table>
+            </div>
+        </div>
 
-<table>
-  <thead>
-    <tr>
-      <th>Car</th>
-      <th>Buyer</th>
-      <th>Seller</th>
-      <th>Date</th>
-      <th>Price</th>
-      <th>Location</th>
-    </tr>
-  </thead>
-  <tbody>
-    <% transactions.forEach(transaction => { %>
-    <tr>
-      <td><%= transaction.car ? transaction.car.model : 'not available' %></td>
+        <!-- Mobile Card View -->
+        <!-- <div class="transactions-cards mobile-only">
+            <% transactions.forEach((transaction, index) => { %>
+                <div class="transaction-card" style="animation-delay: \<\%= index * 0.1 \%\>s">
+                    <div class="card-header">
+                        <div class="car-info">
+                            <h3 class="car-title">
+                                <%= transaction.car ? transaction.car.model : 'Car not available' %>
+                                <% if (transaction.car && transaction.car.year) { %>
+                                    <span class="car-year">(<%= transaction.car.year %>)</span>
+                                <% } %>
+                            </h3>
+                        </div>
+                        <div class="transaction-price">$<%= transaction.price.toLocaleString() %></div>
+                    </div>
 
-      <td><%= transaction.buyer.name %></td>
-      <td><%= transaction.seller.name %></td>
-      <td><%= new Date(transaction.date).toLocaleDateString() %></td>
-      <td>$<%= transaction.price.toFixed(2) %></td>
-      <td><%= transaction.location %></td>
-    </tr>
-    <% }) %>
-  </tbody>
-</table>
-<% } %> <%- include('../partials/footer.ejs') %>
+                    <div class="card-body">
+                        <div class="transaction-detail">
+                            <span class="detail-icon">👤</span>
+                            <div class="detail-content">
+                                <span class="detail-label">Buyer:</span>
+                                <span class="detail-value"><%= transaction.buyer.name %></span>
+                            </div>
+                        </div>
+
+                        <div class="transaction-detail">
+                            <span class="detail-icon">🏪</span>
+                            <div class="detail-content">
+                                <span class="detail-label">Seller:</span>
+                                <span class="detail-value"><%= transaction.seller.name %></span>
+                            </div>
+                        </div>
+
+                        <div class="transaction-detail">
+                            <span class="detail-icon">📅</span>
+                            <div class="detail-content">
+                                <span class="detail-label">Date:</span>
+                                <span class="detail-value">
+                                    <%= new Date(transaction.date).toLocaleDateString('en-US', { 
+                                        month: 'short', 
+                                        day: 'numeric', 
+                                        year: 'numeric',
+                                        hour: '2-digit', 
+                                        minute: '2-digit' 
+                                    }) %>
+                                </span>
+                            </div>
+                        </div>
+
+                        <% if (transaction.location) { %>
+                            <div class="transaction-detail">
+                                <span class="detail-icon">📍</span>
+                                <div class="detail-content">
+                                    <span class="detail-label">Location:</span>
+                                    <span class="detail-value"><%= transaction.location %></span>
+                                </div>
+                            </div>
+                        <% } %>
+                    </div>
+                </div>
+            <% }) %>
+        </div> -->
+
+        <!-- Summary Section -->
+        <div class="transactions-summary">
+            <h3>Transaction Summary</h3>
+            <div class="summary-grid">
+                <div class="summary-item">
+                    <div class="summary-icon">📈</div>
+                    <div class="summary-content">
+                        <div class="summary-number"><%= transactions.length %></div>
+                        <div class="summary-label">Total Transactions</div>
+                    </div>
+                </div>
+                <div class="summary-item">
+                    <div class="summary-icon">💰</div>
+                    <div class="summary-content">
+                        <div class="summary-number">$<%= Math.round(transactions.reduce((sum, t) => sum + t.price, 0) / transactions.length).toLocaleString() %></div>
+                        <div class="summary-label">Average Price</div>
+                    </div>
+                </div>
+                <div class="summary-item">
+                    <div class="summary-icon">🏆</div>
+                    <div class="summary-content">
+                        <div class="summary-number">$<%= Math.max(...transactions.map(t => t.price)).toLocaleString() %></div>
+                        <div class="summary-label">Highest Sale</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    <% } %>
+</div>
+
+<%- include('../partials/footer.ejs') %>

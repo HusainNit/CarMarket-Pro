@@ -1,13 +1,704 @@
 <%- include('../partials/header.ejs') %>
 
-<h2><%= car.title %></h2>
-<img src="<%= car.image %>" alt="<%= car.title %>" width="300" />
-<p><%= car.description %></p>
+<div class="car-show-container">
+    <div class="car-show-card">
+        <!-- Car Header -->
+        <div class="car-show-header">
+            <div class="header-content">
+                <div class="car-title-section">
+                    <h1 class="car-title"><%= carByID.model %></h1>
+                    <div class="car-meta">
+                        <span class="car-year">
+                            <span class="meta-icon">📅</span>
+                            <%= carByID.year %>
+                        </span>
+                        <span class="car-price">
+                            <span class="meta-icon">💰</span>
+                            $<%= carByID.price.toLocaleString() %>
+                        </span>
+                        <span class="car-status <%= carByID.isAvailable ? 'available' : 'sold' %>">
+                            <span class="status-icon"><%= carByID.isAvailable ? '✅' : '❌' %></span>
+                            <%= carByID.isAvailable ? 'Available' : 'Sold' %>
+                        </span>
+                    </div>
+                </div>
+                <div class="header-actions">
+                    <% if (user && carByID.owner._id.toString() === user._id.toString()) { %>
+                        <a href="/cars/<%= carByID._id %>/edit" class="btn btn-edit">
+                            <span class="btn-icon">✏️</span>
+                            Edit Car
+                        </a>
+                    <% } %>
+                    <a href="/cars/all" class="btn btn-back">
+                        <span class="btn-icon">⬅️</span>
+                        Back to Cars
+                    </a>
+                </div>
+            </div>
+        </div>
 
-<a href="/cars/<%= car._id %>/edit">Edit</a>
+        <div class="car-show-content">
+            <!-- Car Image Section -->
+            <div class="car-image-section">
+                <div class="image-container">
+                    <% if (carByID.imageUrl) { %>
+                        <img src="<%= carByID.imageUrl %>" alt="<%= carByID.model %>" class="car-main-image" id="mainImage" />
+                        <div class="image-overlay" id="imageOverlay">
+                            <div class="overlay-content">
+                                <span class="overlay-icon">🔍</span>
+                                <span class="overlay-text">Click to view full size</span>
+                            </div>
+                        </div>
+                    <% } else { %>
+                        <div class="no-image-placeholder">
+                            <div class="placeholder-icon">🚗</div>
+                            <div class="placeholder-text">
+                                <h3>No Image Available</h3>
+                                <p>Image not provided for this vehicle</p>
+                            </div>
+                        </div>
+                    <% } %>
+                </div>
 
-<form action="/cars/<%= car._id %>?_method=DELETE" method="POST">
-  <button type="submit">Delete</button>
-</form>
+                <!-- Image Actions -->
+                <% if (carByID.imageUrl) { %>
+                    <div class="image-actions">
+                        <button class="btn btn-image-action" id="viewFullBtn">
+                            <span class="btn-icon">🔍</span>
+                            View Full Size
+                        </button>
+                        <button class="btn btn-image-action" id="shareImageBtn">
+                            <span class="btn-icon">📤</span>
+                            Share Image
+                        </button>
+                    </div>
+                <% } %>
+            </div>
 
+            <!-- Car Details Section -->
+            <div class="car-details-section">
+                <h2 class="section-title">
+                    <span class="title-icon">📋</span>
+                    Vehicle Details
+                </h2>
+
+                <div class="details-grid">
+                    <div class="detail-card">
+                        <div class="detail-header">
+                            <span class="detail-icon">🏷️</span>
+                            <h3>Basic Information</h3>
+                        </div>
+                        <div class="detail-content">
+                            <div class="detail-row">
+                                <span class="detail-label">Model:</span>
+                                <span class="detail-value"><%= carByID.model %></span>
+                            </div>
+                            <div class="detail-row">
+                                <span class="detail-label">Year:</span>
+                                <span class="detail-value"><%= carByID.year %></span>
+                            </div>
+                            <div class="detail-row">
+                                <span class="detail-label">Condition:</span>
+                                <span class="detail-value condition-<%= carByID.condition.toLowerCase() %>">
+                                    <%= carByID.condition %>
+                                </span>
+                            </div>
+                            <div class="detail-row">
+                                <span class="detail-label">Availability:</span>
+                                <span class="detail-value">
+                                    <span class="availability-badge <%= carByID.isAvailable ? 'available' : 'unavailable' %>">
+                                        <%= carByID.isAvailable ? 'Available for Sale' : 'Not Available' %>
+                                    </span>
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="detail-card">
+                        <div class="detail-header">
+                            <span class="detail-icon">💰</span>
+                            <h3>Pricing Information</h3>
+                        </div>
+                        <div class="detail-content">
+                            <div class="price-display">
+                                <div class="price-main">
+                                    <span class="price-currency">$</span>
+                                    <span class="price-amount"><%= carByID.price.toLocaleString() %></span>
+                                </div>
+                                <div class="price-details">
+                                    <div class="price-breakdown">
+                                        <span class="breakdown-label">Listed Price:</span>
+                                        <span class="breakdown-value">$<%= carByID.price.toLocaleString() %></span>
+                                    </div>
+                                    <div class="price-breakdown">
+                                        <span class="breakdown-label">Est. Tax (8%):</span>
+                                        <span class="breakdown-value">$<%= (carByID.price * 0.08).toLocaleString() %></span>
+                                    </div>
+                                    <div class="price-breakdown total">
+                                        <span class="breakdown-label">Total Est.:</span>
+                                        <span class="breakdown-value">$<%= (carByID.price * 1.08).toLocaleString() %></span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="detail-card">
+                        <div class="detail-header">
+                            <span class="detail-icon">👤</span>
+                            <h3>Seller Information</h3>
+                        </div>
+                        <div class="detail-content">
+                            <div class="seller-info">
+                                <div class="seller-avatar">
+                                    <span class="avatar-icon">👤</span>
+                                </div>
+                                <div class="seller-details">
+                                    <h4 class="seller-name"><%= carByID.owner.name %></h4>
+                                    <p class="seller-email">
+                                        <span class="contact-icon">📧</span>
+                                        <%= carByID.owner.email %>
+                                    </p>
+                                    <% if (carByID.owner.phone) { %>
+                                        <p class="seller-phone">
+                                            <span class="contact-icon">📞</span>
+                                            <%= carByID.owner.phone %>
+                                        </p>
+                                    <% } %>
+                                    <div class="seller-stats">
+                                        <div class="stat-item">
+                                            <span class="stat-icon">🚗</span>
+                                            <span class="stat-text">
+                                                <%= carByID.owner.cars ? carByID.owner.cars.length : 0 %> Cars Listed
+                                            </span>
+                                        </div>
+                                        <div class="stat-item">
+                                            <span class="stat-icon">⭐</span>
+                                            <span class="stat-text">Verified Seller</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <% if (carByID.description) { %>
+                        <div class="detail-card full-width">
+                            <div class="detail-header">
+                                <span class="detail-icon">📝</span>
+                                <h3>Description</h3>
+                            </div>
+                            <div class="detail-content">
+                                <p class="car-description"><%= carByID.description %></p>
+                            </div>
+                        </div>
+                    <% } %>
+                </div>
+            </div>
+        </div>
+
+        <!-- Action Buttons -->
+        <div class="car-actions">
+            <div class="actions-container">
+                <% if (user) { %>
+                    <% if (carByID.owner._id.toString() === user._id.toString()) { %>
+                        <!-- Owner Actions -->
+                        <div class="owner-actions">
+                            <h3>Manage Your Listing</h3>
+                            <div class="action-buttons">
+                                <a href="/cars/<%= carByID._id %>/edit" class="btn btn-primary btn-large">
+                                    <span class="btn-icon">✏️</span>
+                                    Edit Listing
+                                </a>
+                                <button class="btn btn-danger btn-large" id="deleteBtn">
+                                    <span class="btn-icon">🗑️</span>
+                                    Delete Listing
+                                </button>
+                                <button class="btn btn-secondary btn-large" id="toggleAvailabilityBtn">
+                                    <span class="btn-icon"><%= carByID.isAvailable ? '❌' : '✅' %></span>
+                                    Mark as <%= carByID.isAvailable ? 'Sold' : 'Available' %>
+                                </button>
+                            </div>
+                        </div>
+                    <% } else { %>
+                        <!-- Buyer Actions -->
+                        <% if (carByID.isAvailable) { %>
+                            <div class="buyer-actions">
+                                <h3>Interested in this car?</h3>
+                                <div class="action-buttons">
+                                    <a href="/transactions/buy/<%= carByID._id %>" class="btn btn-success btn-large btn-purchase">
+                                        <span class="btn-icon">💳</span>
+                                        Buy Now - $<%= carByID.price.toLocaleString() %>
+                                    </a>
+                                    <button class="btn btn-outline btn-large" id="contactSellerBtn">
+                                        <span class="btn-icon">📞</span>
+                                        Contact Seller
+                                    </button>
+                                    <button class="btn btn-outline btn-large" id="saveCarBtn">
+                                        <span class="btn-icon">❤️</span>
+                                        Save to Favorites
+                                    </button>
+                                </div>
+                            </div>
+                        <% } else { %>
+                            <div class="unavailable-notice">
+                                <div class="notice-icon">❌</div>
+                                <div class="notice-content">
+                                    <h3>This car is no longer available</h3>
+                                    <p>This vehicle has been sold or is no longer listed for sale.</p>
+                                    <a href="/cars/all" class="btn btn-primary">
+                                        <span class="btn-icon">🔍</span>
+                                        Browse Other Cars
+                                    </a>
+                                </div>
+                            </div>
+                        <% } %>
+                    <% } %>
+                <% } else { %>
+                    <!-- Guest Actions -->
+                    <div class="guest-actions">
+                        <div class="guest-notice">
+                            <div class="notice-icon">🔐</div>
+                            <div class="notice-content">
+                                <h3>Sign in to take action</h3>
+                                <p>Create an account or sign in to contact the seller or purchase this vehicle.</p>
+                                <div class="guest-buttons">
+                                    <a href="/auth/sign-in" class="btn btn-primary btn-large">
+                                        <span class="btn-icon">🔑</span>
+                                        Sign In
+                                    </a>
+                                    <a href="/auth/sign-up" class="btn btn-outline btn-large">
+                                        <span class="btn-icon">📝</span>
+                                        Create Account
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                <% } %>
+            </div>
+        </div>
+
+        <!-- Additional Information -->
+        <div class="additional-info">
+            <div class="info-grid">
+                <div class="info-card">
+                    <div class="info-icon">🛡️</div>
+                    <div class="info-content">
+                        <h4>Secure Transaction</h4>
+                        <p>All transactions are protected and verified for your safety.</p>
+                    </div>
+                </div>
+                <div class="info-card">
+                    <div class="info-icon">📋</div>
+                    <div class="info-content">
+                        <h4>Vehicle History</h4>
+                        <p>Request detailed vehicle history and inspection reports.</p>
+                    </div>
+                </div>
+                <div class="info-card">
+                    <div class="info-icon">🤝</div>
+                    <div class="info-content">
+                        <h4>Support Available</h4>
+                        <p>Our team is here to help with any questions or concerns.</p>
+                    </div>
+                </div>
+                <div class="info-card">
+                    <div class="info-icon">💰</div>
+                    <div class="info-content">
+                        <h4>Fair Pricing</h4>
+                        <p>Compare prices and get the best deal on your next vehicle.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Image Modal -->
+<% if (carByID.imageUrl) { %>
+    <div class="image-modal" id="imageModal" style="display: none;">
+        <div class="modal-content">
+            <button class="modal-close" id="modalClose">&times;</button>
+            <img src="<%= carByID.imageUrl %>" alt="<%= carByID.model %>" class="modal-image" />
+            <div class="modal-info">
+                <h3><%= carByID.model %> - <%= carByID.year %></h3>
+                <p>$<%= carByID.price.toLocaleString() %></p>
+            </div>
+        </div>
+    </div>
+<% } %>
+
+<!-- Delete Confirmation Modal -->
+<% if (user && carByID.owner._id.toString() === user._id.toString()) { %>
+    <div class="confirmation-modal" id="deleteModal" style="display: none;">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>
+                    <span class="modal-icon">⚠️</span>
+                    Delete Car Listing
+                </h3>
+                <button class="modal-close" id="deleteModalClose">&times;</button>
+            </div>
+            <div class="modal-body">
+                <p>Are you sure you want to delete this car listing?</p>
+                <div class="delete-warning">
+                    <div class="warning-item">
+                        <span class="warning-icon">🚗</span>
+                        <span class="warning-text"><strong><%= carByID.model %> - <%= carByID.year %></strong></span>
+                    </div>
+                    <div class="warning-item">
+                        <span class="warning-icon">💰</span>
+                        <span class="warning-text">Listed for $<%= carByID.price.toLocaleString() %></span>
+                    </div>
+                    <div class="warning-item">
+                        <span class="warning-icon">❌</span>
+                        <span class="warning-text">This action cannot be undone</span>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-actions">
+                <form action="/cars/delete" method="POST" style="display: inline;">
+                    <input type="hidden" name="id" value="<%= carByID._id %>" />
+                    <button type="submit" class="btn btn-danger btn-large">
+                        <span class="btn-icon">🗑️</span>
+                        Yes, Delete
+                    </button>
+                </form>
+                <button class="btn btn-secondary btn-large" id="cancelDeleteBtn">
+                    <span class="btn-icon">❌</span>
+                    Cancel
+                </button>
+            </div>
+        </div>
+    </div>
+<% } %>
+
+<!-- Contact Seller Modal -->
+<% if (user && carByID.owner._id.toString() !== user._id.toString()) { %>
+    <div class="contact-modal" id="contactModal" style="display: none;">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>
+                    <span class="modal-icon">📞</span>
+                    Contact Seller
+                </h3>
+                <button class="modal-close" id="contactModalClose">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="seller-contact-info">
+                    <div class="contact-card">
+                        <div class="contact-avatar">
+                            <span class="avatar-icon">👤</span>
+                        </div>
+                        <div class="contact-details">
+                            <h4><%= carByID.owner.name %></h4>
+                            <div class="contact-methods">
+                                <div class="contact-method">
+                                    <span class="method-icon">📧</span>
+                                    <span class="method-text"><%= carByID.owner.email %></span>
+                                    <button class="btn btn-small btn-copy" data-copy="<%= carByID.owner.email %>">
+                                        Copy
+                                    </button>
+                                </div>
+                                <% if (carByID.owner.phone) { %>
+                                    <div class="contact-method">
+                                        <span class="method-icon">📞</span>
+                                        <span class="method-text"><%= carByID.owner.phone %></span>
+                                        <button class="btn btn-small btn-copy" data-copy="<%= carByID.owner.phone %>">
+                                            Copy
+                                        </button>
+                                    </div>
+                                <% } %>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="contact-tips">
+                    <h4>💡 Contact Tips</h4>
+                    <ul class="tips-list">
+                        <li>Be specific about your interest in the vehicle</li>
+                        <li>Ask about vehicle history and maintenance records</li>
+                        <li>Arrange to meet in a safe, public location</li>
+                        <li>Consider bringing a knowledgeable friend for inspection</li>
+                        <li>Verify all documentation before making payment</li>
+                    </ul>
+                </div>
+            </div>
+            <div class="modal-actions">
+                <a href="mailto:<%= carByID.owner.email %>?subject=Interest in <%= carByID.model %> - <%= carByID.year %>&body=Hi <%= carByID.owner.name %>,%0D%0A%0D%0AI'm interested in your <%= carByID.model %> listed for $<%= carByID.price.toLocaleString() %>. Could we arrange a time to discuss?%0D%0A%0D%0AThank you!" 
+                   class="btn btn-primary btn-large">
+                    <span class="btn-icon">📧</span>
+                    Send Email
+                </a>
+                <% if (carByID.owner.phone) { %>
+                    <a href="tel:<%= carByID.owner.phone %>" class="btn btn-secondary btn-large">
+                        <span class="btn-icon">📞</span>
+                        Call Now
+                    </a>
+                <% } %>
+            </div>
+        </div>
+    </div>
+<% } %>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Image modal functionality
+    const mainImage = document.getElementById('mainImage');
+    const imageModal = document.getElementById('imageModal');
+    const modalClose = document.getElementById('modalClose');
+    const viewFullBtn = document.getElementById('viewFullBtn');
+
+    if (mainImage && imageModal) {
+        function openImageModal() {
+            imageModal.style.display = 'flex';
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeImageModal() {
+            imageModal.style.display = 'none';
+            document.body.style.overflow = 'auto';
+        }
+
+        mainImage.addEventListener('click', openImageModal);
+        if (viewFullBtn) viewFullBtn.addEventListener('click', openImageModal);
+        if (modalClose) modalClose.addEventListener('click', closeImageModal);
+
+        imageModal.addEventListener('click', function(e) {
+            if (e.target === imageModal) {
+                closeImageModal();
+            }
+        });
+
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape' && imageModal.style.display === 'flex') {
+                closeImageModal();
+            }
+        });
+    }
+
+    // Delete confirmation modal
+    const deleteBtn = document.getElementById('deleteBtn');
+    const deleteModal = document.getElementById('deleteModal');
+    const deleteModalClose = document.getElementById('deleteModalClose');
+    const cancelDeleteBtn = document.getElementById('cancelDeleteBtn');
+
+    if (deleteBtn && deleteModal) {
+        function openDeleteModal() {
+            deleteModal.style.display = 'flex';
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeDeleteModal() {
+            deleteModal.style.display = 'none';
+            document.body.style.overflow = 'auto';
+        }
+
+        deleteBtn.addEventListener('click', openDeleteModal);
+        if (deleteModalClose) deleteModalClose.addEventListener('click', closeDeleteModal);
+        if (cancelDeleteBtn) cancelDeleteBtn.addEventListener('click', closeDeleteModal);
+
+        deleteModal.addEventListener('click', function(e) {
+            if (e.target === deleteModal) {
+                closeDeleteModal();
+            }
+        });
+    }
+
+    // Contact seller modal
+    const contactSellerBtn = document.getElementById('contactSellerBtn');
+    const contactModal = document.getElementById('contactModal');
+    const contactModalClose = document.getElementById('contactModalClose');
+
+    if (contactSellerBtn && contactModal) {
+        function openContactModal() {
+            contactModal.style.display = 'flex';
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeContactModal() {
+            contactModal.style.display = 'none';
+            document.body.style.overflow = 'auto';
+        }
+
+        contactSellerBtn.addEventListener('click', openContactModal);
+        if (contactModalClose) contactModalClose.addEventListener('click', closeContactModal);
+
+        contactModal.addEventListener('click', function(e) {
+            if (e.target === contactModal) {
+                closeContactModal();
+            }
+        });
+    }
+
+    // Copy to clipboard functionality
+    const copyButtons = document.querySelectorAll('.btn-copy');
+    copyButtons.forEach(button => {
+        button.addEventListener('click', function() {
+            const textToCopy = this.getAttribute('data-copy');
+            navigator.clipboard.writeText(textToCopy).then(() => {
+                const originalText = this.textContent;
+                this.textContent = 'Copied!';
+                this.classList.add('copied');
+                
+                setTimeout(() => {
+                    this.textContent = originalText;
+                    this.classList.remove('copied');
+                }, 2000);
+            }).catch(() => {
+                // Fallback for older browsers
+                const textArea = document.createElement('textarea');
+                textArea.value = textToCopy;
+                document.body.appendChild(textArea);
+                textArea.select();
+                document.execCommand('copy');
+                document.body.removeChild(textArea);
+                
+                const originalText = this.textContent;
+                this.textContent = 'Copied!';
+                this.classList.add('copied');
+                
+                setTimeout(() => {
+                    this.textContent = originalText;
+                    this.classList.remove('copied');
+                }, 2000);
+            });
+        });
+    });
+
+    // Share image functionality
+    const shareImageBtn = document.getElementById('shareImageBtn');
+    if (shareImageBtn) {
+        shareImageBtn.addEventListener('click', function() {
+            if (navigator.share) {
+                navigator.share({
+                    title: '<%= carByID.model %> - <%= carByID.year %>',
+                    text: 'Check out this car for sale: <%= carByID.model %> - $<%= carByID.price.toLocaleString() %>',
+                    url: window.location.href
+                });
+            } else {
+                // Fallback - copy URL to clipboard
+                navigator.clipboard.writeText(window.location.href).then(() => {
+                    const originalText = this.innerHTML;
+                    this.innerHTML = '<span class="btn-icon">✅</span>Link Copied!';
+                    
+                    setTimeout(() => {
+                        this.innerHTML = originalText;
+                    }, 2000);
+                });
+            }
+        });
+    }
+
+    // Save to favorites functionality
+    const saveCarBtn = document.getElementById('saveCarBtn');
+    if (saveCarBtn) {
+        saveCarBtn.addEventListener('click', function() {
+            // This would typically make an API call to save the car
+            const originalText = this.innerHTML;
+            this.innerHTML = '<span class="btn-icon">❤️</span>Saved!';
+            this.classList.add('saved');
+            
+            setTimeout(() => {
+                this.innerHTML = '<span class="btn-icon">💔</span>Remove from Favorites';
+            }, 2000);
+        });
+    }
+
+    // Toggle availability functionality
+    const toggleAvailabilityBtn = document.getElementById('toggleAvailabilityBtn');
+    if (toggleAvailabilityBtn) {
+        toggleAvailabilityBtn.addEventListener('click', function() {
+            if (confirm('Are you sure you want to change the availability status of this car?')) {
+                // This would typically make an API call to update availability
+                const isCurrentlyAvailable = <%= carByID.isAvailable %>;
+                const newStatus = !isCurrentlyAvailable;
+                
+                // Update button text and icon
+                if (newStatus) {
+                    this.innerHTML = '<span class="btn-icon">❌</span>Mark as Sold';
+                } else {
+                    this.innerHTML = '<span class="btn-icon">✅</span>Mark as Available';
+                }
+                
+                // You would typically reload the page or update the UI here
+                // For now, we'll just show a confirmation
+                alert('Availability status updated successfully!');
+            }
+        });
+    }
+
+    // Smooth scrolling for anchor links
+    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+        anchor.addEventListener('click', function (e) {
+            e.preventDefault();
+            const target = document.querySelector(this.getAttribute('href'));
+            if (target) {
+                target.scrollIntoView({
+                    behavior: 'smooth',
+                    block: 'start'
+                });
+            }
+        });
+    });
+
+    // Add loading states to action buttons
+    const actionButtons = document.querySelectorAll('.btn-large');
+    actionButtons.forEach(button => {
+        if (button.type === 'submit' || button.href) {
+            button.addEventListener('click', function() {
+                if (this.type === 'submit' || this.href) {
+                    const originalText = this.innerHTML;
+                    this.innerHTML = '<span class="btn-icon">⏳</span>Loading...';
+                    this.disabled = true;
+                    
+                    // Re-enable after 3 seconds if still on page
+                    setTimeout(() => {
+                        this.innerHTML = originalText;
+                        this.disabled = false;
+                    }, 3000);
+                }
+            });
+        }
+    });
+
+    // Auto-hide success messages
+    const successMessages = document.querySelectorAll('.alert-success');
+    successMessages.forEach(message => {
+        setTimeout(() => {
+            message.style.opacity = '0';
+            setTimeout(() => message.remove(), 300);
+        }, 5000);
+    });
+
+    // Lazy loading for images
+    const images = document.querySelectorAll('img[data-src]');
+    const imageObserver = new IntersectionObserver((entries, observer) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                const img = entry.target;
+                img.src = img.dataset.src;
+                img.classList.remove('lazy');
+                imageObserver.unobserve(img);
+            }
+        });
+    });
+
+    images.forEach(img => imageObserver.observe(img));
+
+    // Add animation classes when elements come into view
+    const animatedElements = document.querySelectorAll('.detail-card, .info-card');
+    const animationObserver = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                entry.target.classList.add('animate-in');
+            }
+        });
+    }, { threshold: 0.1 });
+
+    animatedElements.forEach(el => animationObserver.observe(el));
+});
+</script>
 <%- include('../partials/footer.ejs') %>

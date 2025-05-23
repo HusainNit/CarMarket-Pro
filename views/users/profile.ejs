@@ -1,35 +1,105 @@
 <%- include('../partials/header.ejs') %>
 
 <div class="profile-container">
-  <h2><%= user.name %>'s Profile</h2>
-
-  <div class="actions">
-    <a href="/auth/<%= user._id %>/update-password" class="btn">Update Password</a>
-  </div>
-
-  <div class="cars-section">
-    <h3>Your Cars</h3>
-
-    <% if (user.cars.length > 0) { %>
-      <ul class="car-list">
-        <% user.cars.forEach(car => { %>
-          <li class="car-item">
-            <a href="/cars/<%= car._id %>"><strong><%= car.model %></strong> - <%= car.year %> - $<%= car.price %></a>
-          </li>
-        <% }) %>
-      </ul>
-    <% } else { %>
-      <p>You have no cars.</p>
-    <% } %>
-
-    <div class="car-count">
-      <% if (user.cars.length === 1) { %>
-        <p>You have one car.</p>
-      <% } else if (user.cars.length > 1) { %>
-        <p>You have more than one car.</p>
-      <% } %>
+    <div class="profile-header">
+        <div class="profile-info">
+            <div class="profile-avatar">
+                <%= user.name.charAt(0).toUpperCase() %>
+            </div>
+            <div class="profile-details">
+                <h1><%= user.name %>'s Profile</h1>
+                <p class="profile-email"><%= user.email %></p>
+                <% if (user.phone) { %>
+                    <p class="profile-phone">📞 <%= user.phone %></p>
+                <% } %>
+            </div>
+        </div>
+        <div class="profile-actions">
+            <a href="/auth/<%= user._id %>/update-password" class="btn btn-secondary">
+                🔒 Update Password
+            </a>
+        </div>
     </div>
-  </div>
+
+    <div class="profile-content">
+        <div class="cars-section">
+            <div class="section-header">
+                <h2>Your Cars</h2>
+                <div class="car-stats">
+                    <% if (user.cars.length === 0) { %>
+                        <span class="stat-badge stat-empty">No cars listed</span>
+                    <% } else if (user.cars.length === 1) { %>
+                        <span class="stat-badge stat-single">1 car listed</span>
+                    <% } else { %>
+                        <span class="stat-badge stat-multiple"><%= user.cars.length %> cars listed</span>
+                    <% } %>
+                </div>
+            </div>
+
+            <% if (user.cars.length > 0) { %>
+                <div class="cars-grid">
+                    <% user.cars.forEach(car => { %>
+                        <div class="car-card">
+                            <div class="car-card-header">
+                                <h3 class="car-title"><%= car.model %></h3>
+                                <span class="car-year"><%= car.year %></span>
+                            </div>
+                            <div class="car-card-body">
+                                <div class="car-price">$<%= car.price.toLocaleString() %></div>
+                                <% if (car.condition) { %>
+                                    <div class="car-condition">
+                                        <span class="condition-badge condition-<%= car.condition.toLowerCase() %>">
+                                            <%= car.condition %>
+                                        </span>
+                                    </div>
+                                <% } %>
+                            </div>
+                            <div class="car-card-footer">
+                                <a href="/cars/<%= car._id %>" class="btn btn-primary btn-sm">View Details</a>
+                                <a href="/cars/edit/<%= car._id %>" class="btn btn-secondary btn-sm">Edit</a>
+                            </div>
+                        </div>
+                    <% }) %>
+                </div>
+            <% } else { %>
+                <div class="empty-state">
+                    <div class="empty-icon">🚗</div>
+                    <h3>No cars listed yet</h3>
+                    <p>Start selling by adding your first car to the marketplace</p>
+                    <a href="/cars/new" class="btn btn-success">List Your First Car</a>
+                </div>
+            <% } %>
+        </div>
+
+        <% if (user.cars.length > 0) { %>
+            <div class="quick-actions">
+                <h3>Quick Actions</h3>
+                <div class="actions-grid">
+                    <a href="/cars/new" class="action-card">
+                        <div class="action-icon">➕</div>
+                        <div class="action-text">
+                            <h4>Add New Car</h4>
+                            <p>List another car for sale</p>
+                        </div>
+                    </a>
+                    <a href="/transactions/all" class="action-card">
+                        <div class="action-icon">📊</div>
+                        <div class="action-text">
+                            <h4>View Transactions</h4>
+                            <p>Check your sales history</p>
+                        </div>
+                    </a>
+                    <a href="/cars/all" class="action-card">
+                        <div class="action-icon">🔍</div>
+                        <div class="action-text">
+                            <h4>Browse Cars</h4>
+                            <p>Explore other listings</p>
+                        </div>
+                    </a>
+                </div>
+            </div>
+        <% } %>
+    </div>
 </div>
 
 <%- include('../partials/footer.ejs') %>

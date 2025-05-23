@@ -1,25 +1,31 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>car app</title>
-    <link rel="stylesheet" href="/style.css" />
-  </head>
-  <body>
-    <nav>
-      <a href="/">Home</a>
-      <% if (!user) { %>
-        <a href="/auth/sign-up">Sign Up</a>
-        <a href="/auth/sign-in">Sign In</a>
-      <% } else { %>
-        <a href="/cars/all">All Cars</a>
-        <a href="/transactions/all">LT</a>
-        <a href="/cars/new">New Cars</a>
-        <a href="/users/<%= user._id %>">My Profile</a>
-        <a href="/auth/sign-out">Sign Out</a>
-      <% } %>
-    </nav>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CarMarket Pro</title>
+    <link rel="stylesheet" href="/style.css">
+</head>
+<body>
+    <header>
+        <nav>
+            <div class="logo">
+                <a href="/">CarMarket Pro</a>
+            </div>
+            <ul class="nav-links">
+                <li><a href="/">Home</a></li>
+                <% if (!user) { %>
+                    <li><a href="/auth/sign-up">Sign Up</a></li>
+                    <li><a href="/auth/sign-in">Sign In</a></li>
+                <% } else { %>
+                    <li><a href="/cars/all">All Cars</a></li>
+                    <li><a href="/transactions/all">Transactions</a></li>
+                    <li><a href="/cars/new">Add Car</a></li>
+                    <li><a href="/users/<%= user._id %>">My Profile</a></li>
+                    <li><a href="/auth/sign-out">Sign Out</a></li>
+                <% } %>
+            </ul>
+        </nav>
+    </header>
 
-    
-    <main>
+    <main class="container">

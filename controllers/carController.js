@@ -52,7 +52,7 @@ const getCarById = async (req, res) => {
     if (!carByID) {
       return res.send("car did not found");
     }
-    res.send(carByID);
+     res.render("cars/show", { carByID });
   } catch (error) {
     console.log(error.message);
   }

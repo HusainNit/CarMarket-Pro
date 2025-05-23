@@ -1,25 +1,376 @@
 <%- include('../partials/header.ejs') %>
 
-<h2 class="spaceInTop" style="margin-bottom: 20px">buy the car</h2>
+<div class="buy-container">
+    <div class="buy-card">
+        <div class="buy-header">
+            <h1>Complete Your Purchase</h1>
+            <p>You're about to buy this amazing car</p>
+        </div>
 
-<form action="/transactions/buy" method="POST">
-  <input type="hidden" name="id" value="<%= car._id %>" />
+        <% if (typeof error !== 'undefined' && error !== "") { %>
+            <div class="alert alert-error">
+                <span class="alert-icon">⚠️</span>
+                <p><%- error %></p>
+            </div>
+        <% } %>
 
-  <input type="text" name="model" value="<%= car.model%>" required disabled />
-  <input type="number" name="year" value="<%= car.year%>" required disabled />
-  <input
-    type="text"
-    name="condition"
-    value="<%= car.condition%>"
-    required
-    disabled
-  />
+        <div class="buy-content">
+            <!-- Car Details Section -->
+            <div class="car-details-section">
+                <h3>Car Details</h3>
+                <div class="car-showcase">
+                    <div class="car-image-container">
+                        <% if (car.imageUrl) { %>
+                            <img src="<%= car.imageUrl %>" alt="<%= car.model %>" class="car-image" />
+                            <div class="image-overlay">
+                                <span class="overlay-text">Click to view full size</span>
+                            </div>
+                        <% } else { %>
+                            <div class="no-image-display">
+                                <span class="no-image-icon">🚗</span>
+                                <span class="no-image-text">No Image Available</span>
+                            </div>
+                        <% } %>
+                    </div>
 
-  <input type="number" name="price" value="<%= car.price%>" required />
-  <input type="text" name="location" placeholder="location" required />
-  <input type="text" name="buyer" value="<%= user._id%>" required />
+                    <div class="car-info-card">
+                        <div class="car-header">
+                            <h2 class="car-title"><%= car.model %></h2>
+                            <span class="car-year">(<%= car.year %>)</span>
+                        </div>
 
-  <button type="submit">buy</button>
-</form>
+                        <div class="car-specs">
+                            <div class="spec-item">
+                                <span class="spec-icon">📅</span>
+                                <div class="spec-content">
+                                    <span class="spec-label">Year</span>
+                                    <span class="spec-value"><%= car.year %></span>
+                                </div>
+                            </div>
+
+                            <div class="spec-item">
+                                <span class="spec-icon">⭐</span>
+                                <div class="spec-content">
+                                    <span class="spec-label">Condition</span>
+                                    <span class="spec-value condition-<%= car.condition.toLowerCase() %>">
+                                        <%= car.condition %>
+                                    </span>
+                                </div>
+                            </div>
+
+                            <div class="spec-item">
+                                <span class="spec-icon">👤</span>
+                                <div class="spec-content">
+                                    <span class="spec-label">Seller</span>
+                                    <span class="spec-value">
+                                        <% if (car.owner && car.owner.name) { %>
+                                            <%= car.owner.name %>
+                                        <% } else { %>
+                                            Unknown Seller
+                                        <% } %>
+                                    </span>
+                                </div>
+                            </div>
+
+                            <div class="spec-item">
+                                <span class="spec-icon">✅</span>
+                                <div class="spec-content">
+                                    <span class="spec-label">Status</span>
+                                    <span class="spec-value status-available">Available</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="price-section">
+                            <div class="original-price">
+                                <span class="price-label">Listed Price</span>
+                                <span class="price-amount">$<%= car.price.toLocaleString() %></span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Purchase Form Section -->
+            <div class="purchase-form-section">
+                <h3>Purchase Information</h3>
+                <form action="/transactions/buy" method="POST" class="purchase-form" id="purchaseForm">
+                    <input type="hidden" name="id" value="<%= car._id %>" />
+
+                    <!-- Hidden car details for form submission -->
+                    <input type="hidden" name="model" value="<%= car.model %>" />
+                    <input type="hidden" name="year" value="<%= car.year %>" />
+                    <input type="hidden" name="condition" value="<%= car.condition %>" />
+                    <input type="hidden" name="buyer" value="<%= user._id %>" />
+
+                    <div class="form-section">
+                        <h4>
+                            <span class="section-icon">💰</span>
+                            Pricing Details
+                        </h4>
+                        
+                        <div class="form-group">
+                            <label for="price">
+                                <span class="label-icon">💵</span>
+                                Your Offer (USD)
+                            </label>
+                            <div class="price-input-wrapper">
+                                <span class="price-symbol">$</span>
+                                <input 
+                                    type="number" 
+                                    id="price"
+                                    name="price" 
+                                    value="<%= car.price %>" 
+                                    required 
+                                    min="1"
+                                    step="100"
+                                    class="form-control price-input"
+                                />
+                            </div>
+                            <small class="form-text">
+                                Listed price: $<%= car.price.toLocaleString() %>. You can make a different offer.
+                            </small>
+                            <div class="price-comparison" id="priceComparison" style="display: none;">
+                                <span class="comparison-text"></span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-section">
+                        <h4>
+                            <span class="section-icon">📍</span>
+                            Transaction Details
+                        </h4>
+                        
+                        <div class="form-group">
+                            <label for="location">
+                                <span class="label-icon">🗺️</span>
+                                Meeting Location
+                            </label>
+                            <input 
+                                type="text" 
+                                id="location"
+                                name="location" 
+                                placeholder="e.g., Downtown Mall, 123 Main St, City Center" 
+                                required 
+                                class="form-control"
+                            />
+                            <small class="form-text">
+                                Specify where you'd like to meet the seller for inspection and purchase
+                            </small>
+                        </div>
+                    </div>
+
+                    <div class="form-section">
+                        <h4>
+                            <span class="section-icon">📋</span>
+                            Purchase Summary
+                        </h4>
+                        
+                        <div class="summary-card">
+                            <div class="summary-row">
+                                <span class="summary-label">Car:</span>
+                                <span class="summary-value"><%= car.model %> (<%= car.year %>)</span>
+                            </div>
+                            <div class="summary-row">
+                                <span class="summary-label">Condition:</span>
+                                <span class="summary-value"><%= car.condition %></span>
+                            </div>
+                            <div class="summary-row">
+                                <span class="summary-label">Buyer:</span>
+                                <span class="summary-value"><%= user.name %></span>
+                            </div>
+                            <div class="summary-row">
+                                <span class="summary-label">Seller:</span>
+                                <span class="summary-value">
+                                    <% if (car.owner && car.owner.name) { %>
+                                        <%= car.owner.name %>
+                                    <% } else { %>
+                                        Unknown
+                                    <% } %>
+                                </span>
+                            </div>
+                            <div class="summary-row total">
+                                <span class="summary-label">Your Offer:</span>
+                                <span class="summary-value" id="offerAmount">$<%= car.price.toLocaleString() %></span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-actions">
+                        <button type="submit" class="btn btn-success btn-large btn-purchase">
+                            <span class="btn-icon">🛒</span>
+                            Complete Purchase
+                        </button>
+                        <a href="/cars/<%= car._id %>" class="btn btn-secondary btn-large">
+                            <span class="btn-icon">👁️</span>
+                            View Details
+                        </a>
+                        <a href="/cars/all" class="btn btn-outline btn-large">
+                            <span class="btn-icon">❌</span>
+                            Cancel
+                        </a>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- Important Information -->
+        <div class="important-info">
+            <h3>
+                <span class="info-icon">ℹ️</span>
+                Important Information
+            </h3>
+            <div class="info-grid">
+                <div class="info-item">
+                    <div class="info-icon-large">🤝</div>
+                    <div class="info-content">
+                        <h4>Meeting Arrangement</h4>
+                        <p>After submitting your offer, the seller will be notified. Arrange a safe, public meeting location for inspection and transaction.</p>
+                    </div>
+                </div>
+
+                <div class="info-item">
+                    <div class="info-icon-large">🔍</div>
+                    <div class="info-content">
+                        <h4>Vehicle Inspection</h4>
+                        <p>Always inspect the vehicle thoroughly before completing the purchase. Check documents, condition, and take a test drive.</p>
+                    </div>
+                </div>
+
+                <div class="info-item">
+                    <div class="info-icon-large">💳</div>
+                    <div class="info-content">
+                        <h4>Payment Security</h4>
+                        <p>Use secure payment methods. Consider bank transfers, certified checks, or cash transactions in safe locations.</p>
+                    </div>
+                </div>
+
+                <div class="info-item">
+                    <div class="info-icon-large">📄</div>
+                    <div class="info-content">
+                        <h4>Documentation</h4>
+                        <p>Ensure all necessary paperwork is ready: title transfer, registration, insurance, and any maintenance records.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Safety Tips -->
+        <div class="safety-tips">
+            <h3>
+                <span class="safety-icon">🛡️</span>
+                Safety Tips
+            </h3>
+            <div class="tips-list">
+                <div class="tip-item">
+                    <span class="tip-check">✅</span>
+                    <span class="tip-text">Meet in well-lit, public places with security cameras</span>
+                </div>
+                <div class="tip-item">
+                    <span class="tip-check">✅</span>
+                    <span class="tip-text">Bring a friend or family member to the meeting</span>
+                </div>
+                <div class="tip-item">
+                    <span class="tip-check">✅</span>
+                    <span class="tip-text">Verify the seller's identity and ownership documents</span>
+                </div>
+                <div class="tip-item">
+                    <span class="tip-check">✅</span>
+                    <span class="tip-text">Test drive the vehicle before finalizing the purchase</span>
+                </div>
+                <div class="tip-item">
+                    <span class="tip-check">✅</span>
+                    <span class="tip-text">Trust your instincts - if something feels wrong, walk away</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+document.addEventListener('DOMContentLoaded', function() {
+    const priceInput = document.getElementById('price');
+    const offerAmount = document.getElementById('offerAmount');
+    const priceComparison = document.getElementById('priceComparison');
+    const comparisonText = priceComparison.querySelector('.comparison-text');
+    const form = document.getElementById('purchaseForm');
+    const originalPrice = <%= car.price %>;
+
+    // Update offer amount and comparison when price changes
+    priceInput.addEventListener('input', function() {
+        const newPrice = parseFloat(this.value) || 0;
+        offerAmount.textContent = `${newPrice.toLocaleString()}`;
+        
+        if (newPrice !== originalPrice) {
+            const difference = newPrice - originalPrice;
+            const percentage = ((difference / originalPrice) * 100).toFixed(1);
+            
+            priceComparison.style.display = 'block';
+            
+            if (difference > 0) {
+                comparisonText.textContent = `${difference.toLocaleString()} (${percentage}%) above listed price`;
+                comparisonText.className = 'comparison-text above';
+            } else if (difference < 0) {
+                comparisonText.textContent = `${Math.abs(difference).toLocaleString()} (${Math.abs(percentage)}%) below listed price`;
+                comparisonText.className = 'comparison-text below';
+            }
+        } else {
+            priceComparison.style.display = 'none';
+        }
+    });
+
+    // Form submission handling
+    form.addEventListener('submit', function(e) {
+        const submitBtn = this.querySelector('.btn-purchase');
+        const location = document.getElementById('location').value.trim();
+        const price = parseFloat(priceInput.value);
+        
+        // Validation
+        if (!location) {
+            e.preventDefault();
+            alert('Please specify a meeting location.');
+            return;
+        }
+        
+        if (price <= 0) {
+            e.preventDefault();
+            alert('Please enter a valid offer amount.');
+            return;
+        }
+        
+        // Confirmation
+        const confirmMessage = `Are you sure you want to make an offer of ${price.toLocaleString()} for this ${<%= JSON.stringify(car.model) %>}?`;
+        if (!confirm(confirmMessage)) {
+            e.preventDefault();
+            return;
+        }
+        
+        // Update button state
+        submitBtn.innerHTML = '<span class="btn-icon">⏳</span>Processing...';
+        submitBtn.disabled = true;
+    });
+
+    // Image modal functionality
+    const carImage = document.querySelector('.car-image');
+    if (carImage) {
+        carImage.addEventListener('click', function() {
+            const modal = document.createElement('div');
+            modal.className = 'image-modal';
+            modal.innerHTML = `
+                <div class="modal-content">
+                    <span class="modal-close">&times;</span>
+                    <img src="${this.src}" alt="${this.alt}" class="modal-image">
+                </div>
+            `;
+            document.body.appendChild(modal);
+            
+            modal.addEventListener('click', function(e) {
+                if (e.target === modal || e.target.className === 'modal-close') {
+                    document.body.removeChild(modal);
+                }
+            });
+        });
+    }
+});</script>
 
 <%- include('../partials/footer.ejs') %>
